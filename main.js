@@ -6,9 +6,11 @@ const FPS = 120;
 const GroundY = SH - 30;
 const Gravity = 0.5;
 const ObjectColor = "#68c0f7FF";
+
 function Rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
 class Player {
     constructor(x, y, w, h, hp) {
         this.x = x;
@@ -55,37 +57,39 @@ class ObstacleE {
         this.w = 200;
         this.h = 200;
         this.Activate = false;
-        this.Ready = 0
+        this.Ready = 0;
         this.way = 1;
         this.Image = Image;
     }
     update() {
         if (this.Activate) {
-            if(this.Ready >= 100){
+            if (this.Ready >= 100) {
                 if (this.x < 200 && this.way === 1) {
                     this.x += 5;
-                } else{
+                } else {
                     this.way = -1;
                     this.x -= 5;
                 }
                 if (this.way === -1 && this.x <= -200) {
                     this.way = 1;
                     this.Activate = false;
-                    this.Ready = 0
+                    this.Ready = 0;
                 }
-            }else{
+            } else {
                 this.Ready++;
             }
         }
     }
     draw(ctx) {
-        if(this.Ready >= 100){
-            if (this.Image && this.Image.complete) {
-                ctx.drawImage(this.Image, this.x, this.y, this.w, this.h);
+        if (this.Activate) {
+            if (this.Ready >= 100) {
+                if (this.Image && this.Image.complete) {
+                    ctx.drawImage(this.Image, this.x, this.y, this.w, this.h);
+                }
+            } else {
+                ctx.fillStyle = "#68c0f7CC";
+                ctx.fillRect(0, GroundY - this.h, this.w, this.h);
             }
-        }else{
-            ctx.fillStyle = "#68c0f7CC"
-            ctx.fillRect(0,GroundY-this.h,this.w,this.h);
         }
     }
     check(P) {
@@ -98,7 +102,15 @@ let RP = false;
 let LP = false;
 let Scene = 0;
 let Obstacles = [];
-let tick = 0
+let tick = 0;
+
+// 이미지와 사운드 배열 및 로드 상태
+const Images = [new Image()];
+const Sounds = [new Audio()];
+let imagesLoadedCount = 0;
+let soundsLoadedCount = 0;
+const totalImages = Images.length;
+const totalSounds = Sounds.length;
 
 function reset() {
     player = new Player(SW / 2, 0, 30, 30);
@@ -132,20 +144,27 @@ function mainloop() {
         }
         player.update();
         player.draw(ctx);
-        for(Obstacle of Obstacles){
+
+        for (let Obstacle of Obstacles) {
             Obstacle.update();
             Obstacle.draw(ctx);
-            if (Obstacle.check(player)){
+            if (Obstacle.check(player)) {
                 Scene = 2;
             }
         }
+
         ctx.fillStyle = ObjectColor;
         ctx.fillRect(0, GroundY, SW, 1);
 
-        if(tick%1000 === 0){
-            Obstacles[Rand(0,Obstacles.length-1)].Activate = true;
+        if (tick % 1000 === 0) {
+            let obs = Obstacles[Rand(0, Obstacles.length - 1)];
+            obs.Activate = true;
+            obs.Ready = 0;
+            // 사운드 재생
+            Sounds[0].currentTime = 0;
+            Sounds[0].play();
         }
-    }else {
+    } else {
         ctx.fillStyle = "#000F";
         ctx.fillRect(0, 0, SW, SH);
         ctx.fillStyle = ObjectColor;
@@ -158,22 +177,40 @@ function mainloop() {
     }
 }
 
-const Images = [new Image()];
-let imagesLoadedCount = 0;
-const totalImages = Images.length;
+function loadImagesAndSounds() {
+    for (let i = 0; i < Images.length; i++) {
+        Images[i].onload = () => {
+            imagesLoadedCount++;
+            checkAllLoaded();
+        };
+        Images[i].onerror = () => {
+            console.error(`Failed to load image: ${Images[i].src}`);
+        };
+        Images[i].src = 'E.png';  // 이미지 경로
+    }
 
-function loadImages() {
-    Images[0].onload = () => {
-        imagesLoadedCount++;
-        if (imagesLoadedCount === totalImages) {
-            startMainLoop();
-        }
-    };
-    Images[0].src = 'E.png';
+    for (let i = 0; i < Sounds.length; i++) {
+        Sounds[i].addEventListener('canplaythrough', () => {
+            soundsLoadedCount++;
+            checkAllLoaded();
+        }, { once: true });
+        Sounds[i].addEventListener('error', () => {
+            console.error(`Failed to load sound: ${Sounds[i].src}`);
+        });
+        Sounds[i].src = 'ESound.mp3';  // 사운드 경로
+        Sounds[i].load();
+    }
+}
+
+function checkAllLoaded() {
+    if (imagesLoadedCount === totalImages && soundsLoadedCount === totalSounds) {
+        startMainLoop();
+    }
 }
 
 function startMainLoop() {
     reset();
+
     window.addEventListener('keydown', e => {
         if (Scene === 0) {
             if (e.key === 'Enter') {
@@ -198,6 +235,7 @@ function startMainLoop() {
             }
         }
     });
+
     window.addEventListener('keyup', e => {
         if (Scene === 1) {
             if (e.key === 'ArrowRight') {
@@ -212,4 +250,4 @@ function startMainLoop() {
     setInterval(mainloop, 1000 / FPS);
 }
 
-loadImages();
+loadImagesAndSounds();
