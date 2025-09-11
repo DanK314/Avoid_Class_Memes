@@ -97,6 +97,72 @@ class ObstacleE {
     }
 }
 
+class ObstacleYeah{
+    constructor(image){
+        this.w = 50;
+        this.h = 50;
+        this.x = Rand(0,SW-this.w);
+        this.y = -10;
+        this.dy = 0;
+        
+        this.Image = image;
+    }
+    update(){
+        this.y += this.dy;
+        if(this.dy < 7){
+            this.dy += 0.1;
+        }
+    }
+    draw(ctx){
+        ctx.drawImage(this.Image, this.x, this.y, this.w, this.h);
+    }
+    check(P) {
+        return (this.x < P.x + P.w && this.x + this.w > P.x && this.y < P.y + P.h && this.y + this.h > P.y);
+    }
+}
+class ObstacleYeahManager{
+    constructor(A,B,C){
+        this.i = [];
+        this.image = [A,B,C];
+        this.Activate = false;
+        this.c = 0;
+        this.timer = 0;
+    }
+    update() {
+        if (this.Activate) {
+            if(this.c <= 30){
+                if(this.timer >= 30){
+                    this.i.push(new ObstacleYeah(this.image[this.c < 3 ? this.c : 2]));
+                    this.c += 1;
+                    this.timer = 0;
+                }
+                this.timer++
+            }else{
+                this.Activate = false;
+                this.c = 0
+            }
+        }
+        for (let Obj of this.i) {
+            Obj.update();
+            if (Obj.y > SH) {
+                Obj = null;
+            }
+        }
+    }
+    draw(ctx){
+        for (let obstacle of this.i) {
+            obstacle.draw(ctx);
+        }
+    }
+    check(P) {
+        for (let obstacle of this.i) {
+            if (obstacle.check(P)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
 let player;
 let RP = false;
 let LP = false;
@@ -105,8 +171,8 @@ let Obstacles = [];
 let tick = 0;
 
 // 이미지와 사운드 배열 및 로드 상태
-const Images = [new Image()];
-const Sounds = [new Audio()];
+const Images = [new Image(),new Image(),new Image(),new Image()];
+const Sounds = [new Audio(),new Audio()];
 let imagesLoadedCount = 0;
 let soundsLoadedCount = 0;
 const totalImages = Images.length;
@@ -117,7 +183,10 @@ function reset() {
     RP = false;
     LP = false;
     Scene = 1;
-    Obstacles = [new ObstacleE(Images[0])];
+    Obstacles = [
+        new ObstacleE(Images[0]),
+        new ObstacleYeahManager(Images[1],Images[2],Images[3])
+    ];
     tick = 0;
 }
 
@@ -157,12 +226,12 @@ function mainloop() {
         ctx.fillRect(0, GroundY, SW, 1);
 
         if (tick % 1000 === 0) {
-            let obs = Obstacles[Rand(0, Obstacles.length - 1)];
-            obs.Activate = true;
-            obs.Ready = 0;
+            let obs = Rand(0, Obstacles.length - 1);
+            Obstacles[obs].Activate = true;
+            Obstacles[obs].Ready = 0;
             // 사운드 재생
-            Sounds[0].currentTime = 0;
-            Sounds[0].play();
+            Sounds[obs].currentTime = 0;
+            Sounds[obs].play();
         }
     } else {
         ctx.fillStyle = "#000F";
@@ -178,6 +247,11 @@ function mainloop() {
 }
 
 function loadImagesAndSounds() {
+    Images[0].src = 'E.png';
+    Images[1].src = 'Yeah!1.png';
+    Images[2].src = 'Yeah!2.png';
+    Images[3].src = 'Yeah!3.png';
+
     for (let i = 0; i < Images.length; i++) {
         Images[i].onload = () => {
             imagesLoadedCount++;
@@ -186,8 +260,10 @@ function loadImagesAndSounds() {
         Images[i].onerror = () => {
             console.error(`Failed to load image: ${Images[i].src}`);
         };
-        Images[i].src = 'E.png';  // 이미지 경로
     }
+    
+    Sounds[0].src = 'ESound.mp3';
+    Sounds[1].src = 'Yeah.mp3';
 
     for (let i = 0; i < Sounds.length; i++) {
         Sounds[i].addEventListener('canplaythrough', () => {
@@ -197,7 +273,6 @@ function loadImagesAndSounds() {
         Sounds[i].addEventListener('error', () => {
             console.error(`Failed to load sound: ${Sounds[i].src}`);
         });
-        Sounds[i].src = 'ESound.mp3';  // 사운드 경로
         Sounds[i].load();
     }
 }
