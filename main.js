@@ -163,6 +163,34 @@ class ObstacleYeahManager{
         return false;
     }
 }
+class DuKaTi{
+    constructor(i1,i2,i3){
+        this.w = 200;
+        this.h = 200;
+        this.I = [i1,i2,i3];
+        this.x = [0,(SW/2)-(this.w/2),SW-this.w];
+        this.y = [0-this.w,0-this.w,0-this.w];
+        this.dy = [0,0,0];
+        this.Activate = false;
+    }
+    draw(ctx){
+        for(i of [0,1,2]){
+            drawImage(this.I[i],this.x[i],this.y[i],this.w,this.h);
+        }
+    }
+    update(){
+        for(i of [0,1,2]){
+            if(this.Activate[i]){
+                if(this.y[i] >= SH - this.h){
+                    this.y[i] += this.dy[i];
+                    this.dy[i] += 0.1;
+                }else{
+                    this.y[i] = SH - this.h;
+                }
+            }
+        }
+    }
+}
 let player;
 let RP = false;
 let LP = false;
