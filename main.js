@@ -241,6 +241,7 @@ let LP = false;
 let Scene = 0;
 let Obstacles = [];
 let tick = 0;
+let Score = 0;
 
 // 이미지와 사운드 배열 및 로드 상태
 const Images = [new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image];
@@ -261,6 +262,7 @@ function reset() {
         new ObstacleDuKaTi(Images[4],Images[5],Images[6])
     ];
     tick = 0;
+    Score = 0;
 }
 
 function mainloop() {
@@ -307,6 +309,7 @@ function mainloop() {
             Sounds[obs].play();
         }
         tick++;
+        Score++;
     } else {
         ctx.fillStyle = "#000F";
         ctx.fillRect(0, 0, SW, SH);
@@ -317,6 +320,8 @@ function mainloop() {
         ctx.fillText("Game Over...", (SW / 2), 50);
         ctx.font = '20px Arial';
         ctx.fillText("Press R to Restart", (SW / 2), SH - 50);
+        ctx.font = '30px Arial';
+        ctx.fillText("Score : " + Score, (SW / 2), SH/2);
     }
 }
 
