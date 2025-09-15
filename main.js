@@ -317,6 +317,8 @@ function mainloop() {
         ctx.fillText("Game Over...", (SW / 2), 50);
         ctx.font = '20px Arial';
         ctx.fillText("Press R to Restart", (SW / 2), SH - 50);
+        ctx.font = '20px Arial';
+        ctx.fillText("Score : "+tick, (SW / 2), (SH/2));
     }
 }
 
