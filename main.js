@@ -326,7 +326,7 @@ function mainloop() {
             localStorage.setItem("Best",tick)
         }
         ctx.font = '20px Arial';
-        ctx.fillText("Best score : "+localStorage.getItem("Best"), (SW / 2), (SH/2)-50);
+        ctx.fillText("Best score : "+Number(localStorage.getItem("Best")), (SW / 2), (SH/2)-50);
     }
 }
 
