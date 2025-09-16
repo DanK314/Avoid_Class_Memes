@@ -241,6 +241,9 @@ let LP = false;
 let Scene = 0;
 let Obstacles = [];
 let tick = 0;
+if(!localStorage.getItem("Best")){
+    localStorage.setItem("Best",0)
+}
 
 // 이미지와 사운드 배열 및 로드 상태
 const Images = [new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image];
@@ -319,6 +322,11 @@ function mainloop() {
         ctx.fillText("Press R to Restart", (SW / 2), SH - 50);
         ctx.font = '20px Arial';
         ctx.fillText("Score : "+tick, (SW / 2), (SH/2));
+        if(localStorage.getItem("Best") < tick){
+            localStorage.setItem("Best",tick)
+        }
+        ctx.font = '20px Arial';
+        ctx.fillText("Best score : "+localStorage.getItem("Best"), (SW / 2), (SH/2)-50);
     }
 }
 
