@@ -145,7 +145,8 @@ class ObstacleYeahManager{
         for (let Obj of this.i) {
             Obj.update();
             if (Obj.y > SH) {
-                Obj = null;
+                let Remove = this.i.indexOf(Obj);
+                this.i.splice(Remove,1);
             }
         }
     }
@@ -300,6 +301,8 @@ function mainloop() {
 
         ctx.fillStyle = ObjectColor;
         ctx.fillRect(0, GroundY, SW, 1);
+        ctx.font = '20px Arial';
+        ctx.fillText(tick, 20, 20);
 
         if (tick % 1000 === 0) {
             let obs = Rand(0, Obstacles.length - 1);
