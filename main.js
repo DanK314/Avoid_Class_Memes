@@ -64,11 +64,11 @@ class ObstacleE {
     update() {
         if (this.Activate) {
             if (this.Ready >= 100) {
-                if (this.x < 200 && this.way === 1) {
-                    this.x += 5;
+                if (this.x < 400 && this.way === 1) {
+                    this.x += 10;
                 } else {
                     this.way = -1;
-                    this.x -= 5;
+                    this.x -= 10;
                 }
                 if (this.way === -1 && this.x <= -200) {
                     this.way = 1;
@@ -88,7 +88,7 @@ class ObstacleE {
                 }
             } else {
                 ctx.fillStyle = "#68c0f7CC";
-                ctx.fillRect(0, GroundY - this.h, this.w, this.h);
+                ctx.fillRect(0, GroundY - this.h, this.w*3, this.h);
             }
         }
     }
@@ -109,7 +109,7 @@ class ObstacleYeah{
     }
     update(){
         this.y += this.dy;
-        if(this.dy < 7){
+        if(this.dy < 10){
             this.dy += 0.1;
         }
     }
@@ -131,7 +131,7 @@ class ObstacleYeahManager{
     update() {
         if (this.Activate) {
             if(this.c <= 30){
-                if(this.timer >= 30){
+                if(this.timer >= 20){
                     this.i.push(new ObstacleYeah(this.image[this.c < 3 ? this.c : 2]));
                     this.c += 1;
                     this.timer = 0;
@@ -187,7 +187,7 @@ class ObstacleDuKaTi{
                 if(this.Move[i]){
                     if(this.y[i] <= GroundY - this.h){
                         this.y[i] += this.dy[i];
-                        this.dy[i] += 0.1;
+                        this.dy[i] += 0.5;
                     }else{
                         this.y[i] = GroundY - this.h;
                         this.dy[i] = 0
@@ -301,6 +301,8 @@ function mainloop() {
 
         ctx.fillStyle = ObjectColor;
         ctx.fillRect(0, GroundY, SW, 1);
+        ctx.textAlign = 'left';
+         ctx.textBaseline = 'middle';
         ctx.font = '20px Arial';
         ctx.fillText(tick, 20, 20);
 
