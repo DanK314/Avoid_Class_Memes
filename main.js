@@ -19,6 +19,7 @@ class Player {
         this.w = w;
         this.h = h;
         this.hp = hp;
+        this.Status = 0;
     }
     update() {
         this.y += this.yVelocity;
@@ -248,14 +249,14 @@ if(!localStorage.getItem("Best")){
 
 // 이미지와 사운드 배열 및 로드 상태
 const Images = [new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image];
-const Sounds = [new Audio(),new Audio(),new Audio()];
+const Sounds = [new Audio(), new Audio(),new Audio(),new Audio()];
 let imagesLoadedCount = 0;
 let soundsLoadedCount = 0;
 const totalImages = Images.length;
 const totalSounds = Sounds.length;
 
 function reset() {
-    player = new Player(SW / 2, 0, 30, 30);
+    player = new Player(SW / 2, 0, 30, 30,5);
     RP = false;
     LP = false;
     Scene = 0;
@@ -294,8 +295,15 @@ function mainloop() {
         for (let Obstacle of Obstacles) {
             Obstacle.update();
             Obstacle.draw(ctx);
-            if (Obstacle.check(player)) {
-                Scene = 2;
+            if (Obstacle.check(player) && player.Status <= 0) {
+                player.hp -= 1;
+                player.Status = 100;
+                Sounds[0].currentTime = 0.1;
+                Sounds[0].play();
+                if(player.hp < 1){
+                    Scene = 2;
+                }
+
             }
         }
 
@@ -305,16 +313,18 @@ function mainloop() {
          ctx.textBaseline = 'middle';
         ctx.font = '20px Arial';
         ctx.fillText(tick, 20, 20);
+        ctx.fillText("HP | "+player.hp, 20, 60)
 
         if (tick % 1000 === 0) {
             let obs = Rand(0, Obstacles.length - 1);
             Obstacles[obs].Activate = true;
             Obstacles[obs].Ready = 0;
             // 사운드 재생
-            Sounds[obs].currentTime = 0;
-            Sounds[obs].play();
+            Sounds[obs+1].currentTime = 0;
+            Sounds[obs+1].play();
         }
         tick++;
+        player.Status--;
     } else {
         ctx.fillStyle = "#000F";
         ctx.fillRect(0, 0, SW, SH);
@@ -354,9 +364,10 @@ function loadImagesAndSounds() {
         };
     }
     
-    Sounds[0].src = 'ESound.mp3';
-    Sounds[1].src = 'Yeah.mp3';
-    Sounds[2].src = 'DuCaTi.mp3'
+    Sounds[0].src = 'Damage.mp3'
+    Sounds[1].src = 'ESound.mp3';
+    Sounds[2].src = 'Yeah.mp3';
+    Sounds[3].src = 'DuCaTi.mp3'
 
     for (let i = 0; i < Sounds.length; i++) {
         Sounds[i].addEventListener('canplaythrough', () => {
