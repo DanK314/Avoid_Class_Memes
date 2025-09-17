@@ -188,7 +188,7 @@ class ObstacleDuKaTi{
                 if(this.Move[i]){
                     if(this.y[i] <= GroundY - this.h){
                         this.y[i] += this.dy[i];
-                        this.dy[i] += 0.3;
+                        this.dy[i] += 0.1;
                     }else{
                         this.y[i] = GroundY - this.h;
                         this.dy[i] = 0
