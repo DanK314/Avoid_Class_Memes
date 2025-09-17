@@ -41,7 +41,7 @@ class Player {
         this.y += dy;
     }
     draw(ctx) {
-        ctx.fillStyle = "#68c0f7FF";
+        (this.Status <= 0)? ctx.fillStyle = "#68c0f7FF" : ctx.fillStyle = "#FF0000FF";
         ctx.fillRect(this.x, this.y, this.w, this.h);
     }
     jump() {
@@ -237,6 +237,124 @@ class ObstacleDuKaTi{
         );
     }
 }
+class ObstacleMarble{
+    constructor(I){
+        console.log("Marble maded")
+        this.w = 200;
+        this.h = 200;
+        this.x = SW-this.w;
+        this.y = (0-this.h)-100;
+        this.dy = 0;
+        this.I = I;
+    }
+    update(){
+        if(this.y <= SH - this.h){
+            this.y += this.dy;
+            this.dy += 0.5;
+        }else{
+            this.y = SH - this.h;
+            this.dy = 0;
+        }
+    }
+    draw(ctx){
+        ctx.drawImage(this.I,this.x,this.y,this.w,this.h);
+    }
+    check(P) {
+        return (this.x < P.x + P.w && this.x + this.w > P.x && this.y < P.y + P.h && this.y + this.h > P.y);
+    }
+}
+class ObstacleHCI{
+    constructor(I){
+        console.log("HCI maded")
+        this.w = 200;
+        this.h = 200;
+        this.x = SW-this.w;
+        this.y = (0-this.h)-100;
+        this.dy = 0;
+        this.I = I;
+    }
+    update(){
+        if(this.y <= SH - (this.h*2)){
+            this.y += this.dy;
+            this.dy += 0.5;
+        }else{
+            this.y = SH - (this.h*2);
+            this.dy = 0;
+        }
+    }
+    draw(ctx){
+        ctx.drawImage(this.I,this.x,this.y,this.w,this.h);
+    }
+    check(P) {
+        return (this.x < P.x + P.w && this.x + this.w > P.x && this.y < P.y + P.h && this.y + this.h > P.y);
+    }
+}
+class ObstacleCO2{
+    constructor(I){
+        console.log("co2 maded")
+        this.w = 200;
+        this.h = 200;
+        this.x = SW;
+        this.y = SH - this.h;
+        this.I = I
+    }
+    update(){
+        if(this.x >= 200){
+            this.x -= 10;
+        }else{
+            this.x = 200;
+        }
+    }
+    draw(ctx){
+        ctx.drawImage(this.I,this.x,this.y,this.w,this.h);
+    }
+    check(P) {
+        return (this.x < P.x + P.w && this.x + this.w > P.x && this.y < P.y + P.h && this.y + this.h > P.y);
+    }
+}
+class ObstalceMarbleManager{
+    constructor(I1,I2,I3){
+        this.Obs = [];
+        this.Activate = false;
+        this.timer = 0;
+        this.I1 = I1
+        this.I2 = I2;
+        this.I3 = I3;
+    }
+    update(){
+        for(let Obstacle of this.Obs){
+            Obstacle.update();
+        }
+        if(this.Activate){
+            if(this.timer === 20){
+                this.Obs.push(new ObstacleMarble(this.I1))
+            }else if(this.timer === 100){
+                this.Obs.push(new ObstacleHCI(this.I2))
+            }else if(this.timer === 300){
+                this.Obs.push(new ObstacleCO2(this.I3))
+            }else if(this.timer === 700){
+                this.Obs.splice(0,this.Obs.length);
+                this.Activate = false;
+                this.timer = -1;
+            }
+            this.timer++;
+        }
+        
+    }
+    check(P) {
+        for (let obstacle of this.Obs) {
+            if (obstacle.check(P)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    draw(ctx){
+        for(let Obstacle of this.Obs){
+            Obstacle.draw(ctx);
+        }
+    }
+}
 let player;
 let RP = false;
 let LP = false;
@@ -248,12 +366,14 @@ if(!localStorage.getItem("Best")){
 }
 
 // 이미지와 사운드 배열 및 로드 상태
-const Images = [new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image];
-const Sounds = [new Audio(), new Audio(),new Audio(),new Audio()];
+const Images = [new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image(),new Image(), new Image()];
+const Sounds = [new Audio(), new Audio(),new Audio(),new Audio(),new Audio()];
 let imagesLoadedCount = 0;
 let soundsLoadedCount = 0;
 const totalImages = Images.length;
 const totalSounds = Sounds.length;
+console.log(Images.length)
+console.log(Sounds.length)
 
 function reset() {
     player = new Player(SW / 2, 0, 30, 30,5);
@@ -263,7 +383,8 @@ function reset() {
     Obstacles = [
         new ObstacleE(Images[0]),
         new ObstacleYeahManager(Images[1],Images[2],Images[3]),
-        new ObstacleDuKaTi(Images[4],Images[5],Images[6])
+        new ObstacleDuKaTi(Images[4],Images[5],Images[6]),
+        new ObstalceMarbleManager(Images[7],Images[8],Images[9])
     ];
     tick = 0;
 }
@@ -353,6 +474,9 @@ function loadImagesAndSounds() {
     Images[4].src = 'DuKaTi1.png';
     Images[5].src = 'DuKaTi2.png';
     Images[6].src = 'DuKaTi3.png';
+    Images[7].src = 'Marble.png'
+    Images[8].src = 'HCI.png'
+    Images[9].src = 'CO2.png'
 
     for (let i = 0; i < Images.length; i++) {
         Images[i].onload = () => {
@@ -368,6 +492,7 @@ function loadImagesAndSounds() {
     Sounds[1].src = 'ESound.mp3';
     Sounds[2].src = 'Yeah.mp3';
     Sounds[3].src = 'DuCaTi.mp3'
+    Sounds[4].src = 'MarbleSong.mp3'
 
     for (let i = 0; i < Sounds.length; i++) {
         Sounds[i].addEventListener('canplaythrough', () => {
