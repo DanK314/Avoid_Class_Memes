@@ -188,7 +188,7 @@ class ObstacleDuKaTi{
                 if(this.Move[i]){
                     if(this.y[i] <= GroundY - this.h){
                         this.y[i] += this.dy[i];
-                        this.dy[i] += 0.5;
+                        this.dy[i] += 0.3;
                     }else{
                         this.y[i] = GroundY - this.h;
                         this.dy[i] = 0
@@ -250,7 +250,7 @@ class ObstacleMarble{
     update(){
         if(this.y <= SH - this.h){
             this.y += this.dy;
-            this.dy += 0.5;
+            this.dy += 0.3;
         }else{
             this.y = SH - this.h;
             this.dy = 0;
@@ -276,7 +276,7 @@ class ObstacleHCI{
     update(){
         if(this.y <= SH - (this.h*2)){
             this.y += this.dy;
-            this.dy += 0.5;
+            this.dy += 0.3;
         }else{
             this.y = SH - (this.h*2);
             this.dy = 0;
